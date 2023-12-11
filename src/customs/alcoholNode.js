@@ -37,7 +37,11 @@ function AlcoholNode(props) {
         <img
           src={alc.image}
           alt={alc.title}
-          style={{ height: "120px", objectFit: "cover" }}
+          style={{
+            height: "150px",
+            width: "100%",
+            objectFit: "contain",
+          }}
         />
       )}
       <button onClick={() => onNodeClick(alc)}>get</button>
