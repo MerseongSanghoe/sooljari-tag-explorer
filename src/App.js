@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo } from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -6,10 +6,10 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   useReactFlow,
-  ReactFlowProvider,
+  BackgroundVariant,
 } from "reactflow";
 import AlcoholNode, { AlcoholData } from "./customs/alcoholNode";
-import TagNode, { TagData } from "./customs/tagNode";
+import TagNode from "./customs/tagNode";
 
 import "reactflow/dist/style.css";
 import "./App.css";
@@ -54,6 +54,7 @@ function App() {
     edges.forEach((e) => idSet.add(e.id));
     console.log(tags);
     console.log(edges);
+    // @ts-ignore
     setNodes((nds) => nds.concat(tags));
     setEdges((egs) => egs.concat(edges));
   };
@@ -114,12 +115,8 @@ function App() {
   /**
    * @type {Set<string>} idSet
    */
-  const idSet = useMemo(() => new Set(), []);
+  const idSet = useMemo(() => new Set(["a382"]), []);
   const nodeTypes = useMemo(() => ({ AlcoholNode, TagNode }), []);
-
-  useEffect(() => {
-    idSet.add("a382");
-  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -135,7 +132,7 @@ function App() {
       >
         <Controls showInteractive={false} />
         <MiniMap />
-        <Background variant="dots" gap={30} size={1} />
+        <Background variant={BackgroundVariant.Dots} gap={30} size={1} />
       </ReactFlow>
     </div>
   );

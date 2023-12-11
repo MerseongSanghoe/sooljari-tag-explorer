@@ -1,12 +1,6 @@
 import React from "react";
-import { Handle, Position, useReactFlow } from "reactflow";
+import { Handle, Position } from "reactflow";
 
-/**
- * @typedef {{
- *  id: string
- *  key: string
- * }} TagData
- */
 export class TagData {
   id;
   key;

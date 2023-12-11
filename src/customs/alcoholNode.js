@@ -1,13 +1,6 @@
 import React from "react";
-import { Handle, Position, useReactFlow } from "reactflow";
+import { Handle, Position } from "reactflow";
 
-/**
- * @typedef {{
- *  id: string,
- *  title: string,
- *  image: string,
- * }} AlcoholData
- */
 export class AlcoholData {
   id;
   title;

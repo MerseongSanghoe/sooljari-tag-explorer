@@ -19,7 +19,7 @@ const hashString = (str) => {
 /**
  * @async
  * @param {number} id
- * @returns {TagData[]}
+ * @returns {Promise<TagData[]>}
  */
 const getTagsById = async (id) => {
   /**
@@ -44,7 +44,7 @@ const getTagsById = async (id) => {
 /**
  * @async
  * @param {string} tag
- * @returns {AlcoholData[]}
+ * @returns {Promise<AlcoholData[]>}
  */
 const getAlcsByTag = async (tag) => {
   /**
