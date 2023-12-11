@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -8,6 +14,7 @@ import ReactFlow, {
   useReactFlow,
   BackgroundVariant,
   addEdge,
+  updateEdge,
 } from "reactflow";
 import AlcoholNode, { AlcoholData } from "./customs/alcoholNode";
 import TagNode from "./customs/tagNode";
@@ -20,9 +27,17 @@ import {
   getTagsById,
 } from "./customs/nodeGenerator";
 
+const hideTagNode = (hidden) => (nodeOrEdge) => {
+  if (nodeOrEdge?.type === "TagNode" || nodeOrEdge?.target?.startsWith("t"))
+    nodeOrEdge.hidden = hidden;
+  return nodeOrEdge;
+};
+
 function App() {
+  const edgeUpdateSuccessful = useRef(true);
   const { getNode } = useReactFlow();
 
+  // functions
   const onClickAlcoholNode = async (
     /** @type {import("./customs/alcoholNode").AlcoholData} */ alc
   ) => {
@@ -96,6 +111,8 @@ function App() {
     setEdges((egs) => egs.concat(edges));
   };
 
+  // states
+  const [hidden, setHidden] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "a382",
@@ -114,6 +131,7 @@ function App() {
   ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  // callbacks
   const onConnect = useCallback(
     (params) =>
       setEdges((eds) =>
@@ -133,11 +151,39 @@ function App() {
     [setEdges]
   );
 
+  const onEdgeUpdateStart = useCallback(() => {
+    edgeUpdateSuccessful.current = false;
+  }, []);
+
+  const onEdgeUpdate = useCallback(
+    (oldEdge, newConnection) => {
+      edgeUpdateSuccessful.current = true;
+      setEdges((els) => updateEdge(oldEdge, newConnection, els));
+    },
+    [setEdges]
+  );
+
+  const onEdgeUpdateEnd = useCallback(
+    (_, edge) => {
+      if (!edgeUpdateSuccessful.current) {
+        setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      }
+
+      edgeUpdateSuccessful.current = true;
+    },
+    [setEdges]
+  );
+
+  // effects
   /**
    * @type {Set<string>} idSet
    */
   const idSet = useMemo(() => new Set(["a382"]), []);
   const nodeTypes = useMemo(() => ({ AlcoholNode, TagNode }), []);
+  useEffect(() => {
+    setNodes((nds) => nds.map(hideTagNode(hidden)));
+    setEdges((eds) => eds.map(hideTagNode(hidden)));
+  }, [hidden, setEdges, setNodes]);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
@@ -148,11 +194,29 @@ function App() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onEdgeUpdate={onEdgeUpdate}
+        onEdgeUpdateStart={onEdgeUpdateStart}
+        onEdgeUpdateEnd={onEdgeUpdateEnd}
         onConnect={onConnect}
       >
         <Controls showInteractive={false} />
         <MiniMap />
         <Background variant={BackgroundVariant.Dots} gap={30} size={1} />
+
+        <div style={{ position: "absolute", left: 10, top: 10, zIndex: 4 }}>
+          <div>
+            <label htmlFor="ishidden">
+              Hide Tags
+              <input
+                id="ishidden"
+                type="checkbox"
+                checked={hidden}
+                onChange={(event) => setHidden(event.target.checked)}
+                className="react-flow__ishidden"
+              />
+            </label>
+          </div>
+        </div>
       </ReactFlow>
     </div>
   );

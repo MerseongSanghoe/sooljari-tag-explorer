@@ -45,16 +45,9 @@ function AlcoholNode(props) {
         />
       )}
       <button onClick={() => onNodeClick(alc)}>get</button>
-      {!isConnecting && (
-        <Handle
-          className="customHandle"
-          position={Position.Right}
-          type="source"
-        />
-      )}
+      {!isConnecting && <Handle position={Position.Top} type="source" />}
       <Handle
-        className="customHandle"
-        position={Position.Left}
+        position={Position.Top}
         type="target"
         isConnectableStart={false}
       />
