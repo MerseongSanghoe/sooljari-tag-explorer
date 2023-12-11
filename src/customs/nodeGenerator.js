@@ -35,7 +35,7 @@ const getTagsById = async (id) => {
     });
 
   const tags = data.data.map(
-    (e) => new TagData({ key: hashString(e.title), id: e.title })
+    (e) => new TagData({ key: "t" + hashString(e.title), id: e.title })
   );
 
   return tags;
@@ -63,6 +63,7 @@ const getAlcsByTag = async (tag) => {
     (e) =>
       new AlcoholData({
         id: e.id,
+        key: `a${e.id}`,
         title: e.title,
         image: `${process.env.REACT_APP_IMAGE_BASE_URL}${e.image}`,
       })

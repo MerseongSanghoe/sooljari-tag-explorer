@@ -3,13 +3,15 @@ import { Handle, Position } from "reactflow";
 
 export class AlcoholData {
   id;
+  key;
   title;
   image;
   /**
    * @param {AlcoholData} param0
    */
-  constructor({ id = "", title = "", image = "" }) {
+  constructor({ id = "", key = "", title = "", image = "" }) {
     this.id = id;
+    this.key = key;
     this.title = title;
     this.image = image;
   }

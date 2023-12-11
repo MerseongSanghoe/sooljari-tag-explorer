@@ -22,14 +22,16 @@ import {
 function App() {
   const { getNode } = useReactFlow();
 
-  const onClickAlcoholNode = async (alc) => {
-    const node = getNode(`a${alc.id}`);
+  const onClickAlcoholNode = async (
+    /** @type {import("./customs/alcoholNode").AlcoholData} */ alc
+  ) => {
+    const node = getNode(alc.key);
     const tagData = await getTagsById(alc.id);
     const tagCount = tagData.length;
     const tags = tagData
-      .filter((e) => !idSet.has(`t${e.key}`))
+      .filter((e) => !idSet.has(e.key))
       .map((tgd, idx) => ({
-        id: `t${tgd.key}`,
+        id: tgd.key,
         type: "TagNode",
         position: getNodePosition(
           300,
@@ -44,29 +46,29 @@ function App() {
       }));
     tags.forEach((e) => idSet.add(e.id));
     const edges = tagData
-      .filter((e) => !idSet.has(`e-a${alc.id}-t${e.key}`))
+      .filter((e) => !idSet.has(`e-${alc.key}-${e.key}`))
       .map((tgd) => ({
-        id: `e-a${alc.id}-t${tgd.key}`,
+        id: `e-${alc.key}-${tgd.key}`,
         type: "straight",
-        source: `a${alc.id}`,
-        target: `t${tgd.key}`,
+        source: alc.key,
+        target: tgd.key,
       }));
     edges.forEach((e) => idSet.add(e.id));
-    console.log(tags);
-    console.log(edges);
     // @ts-ignore
     setNodes((nds) => nds.concat(tags));
     setEdges((egs) => egs.concat(edges));
   };
 
-  const onClickTagNode = async (tag) => {
-    const node = getNode(`t${tag.key}`);
+  const onClickTagNode = async (
+    /** @type {import('./customs/tagNode').TagData} */ tag
+  ) => {
+    const node = getNode(tag.key);
     const alcData = await getAlcsByTag(tag.id);
     const alcCount = alcData.length;
     const alcs = alcData
-      .filter((e) => !idSet.has(`a${e.id}`))
+      .filter((e) => !idSet.has(e.key))
       .map((alc, idx) => ({
-        id: `a${alc.id}`,
+        id: alc.key,
         type: "AlcoholNode",
         position: getNodePosition(
           300,
@@ -81,16 +83,14 @@ function App() {
       }));
     alcs.forEach((e) => idSet.add(e.id));
     const edges = alcData
-      .filter((e) => !idSet.has(`e-a${e.id}-t${tag.key}`))
+      .filter((e) => !idSet.has(`e-${e.key}-${tag.key}`))
       .map((alc) => ({
-        id: `e-a${alc.id}-t${tag.key}`,
+        id: `e-${alc.key}-${tag.key}`,
         type: "straight",
-        source: `a${alc.id}`,
-        target: `t${tag.key}`,
+        source: alc.key,
+        target: tag.key,
       }));
     edges.forEach((e) => idSet.add(e.id));
-    console.log(alcs);
-    console.log(edges);
     setNodes((nds) => nds.concat(alcs));
     setEdges((egs) => egs.concat(edges));
   };
@@ -103,6 +103,7 @@ function App() {
       data: {
         alc: new AlcoholData({
           id: "382",
+          key: "a382",
           title: "느린마을 막걸리",
           image: "http://211.37.148.214/uploads/_19df0f3c14.false",
         }),
