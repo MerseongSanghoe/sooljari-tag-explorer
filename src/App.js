@@ -25,6 +25,13 @@ import {
   getAlcsByTag,
   getNodePosition,
   getTagsById,
+  trySearchAlcohol,
+} from "./customs/alcoholRepository";
+import {
+  alcoholToNode,
+  getNewEdge,
+  tagToNode,
+  toEdgeKey,
 } from "./customs/nodeGenerator";
 
 const hideTagNode = (hidden) => (nodeOrEdge) => {
@@ -46,30 +53,22 @@ function App() {
     const tagCount = tagData.length;
     const tags = tagData
       .filter((e) => !idSet.has(e.key))
-      .map((tgd, idx) => ({
-        id: tgd.key,
-        type: "TagNode",
-        position: getNodePosition(
-          300,
-          idx,
-          tagCount,
-          node?.position ?? { x: 0, y: 0 }
-        ),
-        data: {
-          tag: tgd,
-          onNodeClick: onClickTagNode,
-        },
-      }));
-    tags.forEach((e) => idSet.add(e.id));
+      .map((tgd, idx) =>
+        tagToNode(
+          tgd,
+          getNodePosition(300, idx, tagCount, node?.position ?? { x: 0, y: 0 }),
+          {
+            onNodeClick: onClickTagNode,
+          }
+        )
+      );
     const edges = tagData
-      .filter((e) => !idSet.has(`e-${alc.key}-${e.key}`))
-      .map((tgd) => ({
-        id: `e-${alc.key}-${tgd.key}`,
-        type: "straight",
-        source: alc.key,
-        target: tgd.key,
-      }));
+      .filter((e) => !idSet.has(toEdgeKey(alc, e)))
+      .map((tgd) => getNewEdge(alc, tgd));
+
+    tags.forEach((e) => idSet.add(e.id));
     edges.forEach((e) => idSet.add(e.id));
+
     // @ts-ignore
     setNodes((nds) => nds.concat(tags));
     setEdges((egs) => egs.concat(edges));
@@ -83,36 +82,46 @@ function App() {
     const alcCount = alcData.length;
     const alcs = alcData
       .filter((e) => !idSet.has(e.key))
-      .map((alc, idx) => ({
-        id: alc.key,
-        type: "AlcoholNode",
-        position: getNodePosition(
-          300,
-          idx,
-          alcCount,
-          node?.position ?? { x: 0, y: 0 }
-        ),
-        data: {
+      .map((alc, idx) =>
+        alcoholToNode(
           alc,
-          onNodeClick: onClickAlcoholNode,
-        },
-      }));
-    alcs.forEach((e) => idSet.add(e.id));
+          getNodePosition(300, idx, alcCount, node?.position ?? { x: 0, y: 0 }),
+          {
+            onNodeClick: onClickAlcoholNode,
+          }
+        )
+      );
+
     const edges = alcData
-      .filter((e) => !idSet.has(`e-${e.key}-${tag.key}`))
-      .map((alc) => ({
-        id: `e-${alc.key}-${tag.key}`,
-        type: "straight",
-        source: alc.key,
-        target: tag.key,
-      }));
+      .filter((e) => !idSet.has(toEdgeKey(e, tag)))
+      .map((alc) => getNewEdge(alc, tag));
+
+    alcs.forEach((e) => idSet.add(e.id));
     edges.forEach((e) => idSet.add(e.id));
+
     setNodes((nds) => nds.concat(alcs));
     setEdges((egs) => egs.concat(edges));
   };
 
+  const onSearch = async (/** @type {string} */ search) => {
+    if (search.length <= 0) return;
+    const searchResult = await trySearchAlcohol(search);
+    if (!searchResult) return;
+
+    const alc = alcoholToNode(
+      searchResult,
+      { x: 0, y: 0 },
+      {
+        onNodeClick: onClickAlcoholNode,
+      }
+    );
+
+    setNodes((nds) => nds.concat(alc));
+  };
+
   // states
   const [hidden, setHidden] = useState(false);
+  const [search, setSearch] = useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState([
     {
       id: "a382",
@@ -212,8 +221,18 @@ function App() {
                 type="checkbox"
                 checked={hidden}
                 onChange={(event) => setHidden(event.target.checked)}
-                className="react-flow__ishidden"
               />
+            </label>
+          </div>
+          <div>
+            <label htmlFor="search">
+              Search!
+              <input
+                id="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+              <button onClick={() => onSearch(search)}>Search</button>
             </label>
           </div>
         </div>
