@@ -22,7 +22,13 @@ function TagNode(props) {
   const { tag, onNodeClick } = props.data;
 
   return (
-    <div className="react-flow__node-default">
+    <div
+      className="react-flow__node-default"
+      style={{
+        width: "100%",
+        minWidth: "50px",
+      }}
+    >
       <h3>#{tag.id}</h3>
       <button onClick={() => onNodeClick(tag)}>get</button>
       <Handle

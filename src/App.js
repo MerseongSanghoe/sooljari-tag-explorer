@@ -34,11 +34,20 @@ import {
   toEdgeKey,
 } from "./customs/nodeGenerator";
 
-const hideTagNode = (hidden) => (nodeOrEdge) => {
-  if (nodeOrEdge?.type === "TagNode" || nodeOrEdge?.target?.startsWith("t"))
-    nodeOrEdge.hidden = hidden;
-  return nodeOrEdge;
-};
+/**
+ * @param {boolean} hidden
+ * @param {(target: any) => boolean} checkRule
+ */
+const hideNode =
+  (hidden, checkRule = (_) => true) =>
+  (nodeOrEdge) => {
+    if (checkRule(nodeOrEdge)) nodeOrEdge.hidden = hidden;
+    else nodeOrEdge.hidden = false;
+    return nodeOrEdge;
+  };
+
+const checkTagNode = (nodeOrEdge) =>
+  nodeOrEdge?.type === "TagNode" || nodeOrEdge?.target?.startsWith("t");
 
 function App() {
   const edgeUpdateSuccessful = useRef(true);
@@ -190,8 +199,8 @@ function App() {
   const idSet = useMemo(() => new Set(["a382"]), []);
   const nodeTypes = useMemo(() => ({ AlcoholNode, TagNode }), []);
   useEffect(() => {
-    setNodes((nds) => nds.map(hideTagNode(hidden)));
-    setEdges((eds) => eds.map(hideTagNode(hidden)));
+    setNodes((nds) => nds.map(hideNode(hidden, checkTagNode)));
+    setEdges((eds) => eds.map(hideNode(hidden, checkTagNode)));
   }, [hidden, setEdges, setNodes]);
 
   return (
