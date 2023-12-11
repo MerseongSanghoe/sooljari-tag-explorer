@@ -7,6 +7,18 @@ p, h1, h2, h3, h4, h5, h6 {
   word-break: keep-all;
 }
 
+.non-draggable {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+}
+
 .customNode {
   width: calc(100% + 12px);
   height: calc(100% - 12px);
@@ -21,11 +33,11 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 div.customHandle {
-  width: 0;
-  height: 0;
+  width: 60%;
+  height: 60%;
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 20%;
+  left: 20%;
   border-radius: 0;
   transform: none;
   border: none;

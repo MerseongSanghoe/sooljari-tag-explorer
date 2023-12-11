@@ -25,11 +25,17 @@ function TagNode(props) {
     <div className="react-flow__node-default">
       <h3>#{tag.id}</h3>
       <button onClick={() => onNodeClick(tag)}>get</button>
-      <Handle className="customHandle" position={Position.Left} type="target" />
+      <Handle
+        className="customHandle"
+        position={Position.Left}
+        type="target"
+        isConnectable={false}
+      />
       <Handle
         className="customHandle"
         position={Position.Right}
         type="source"
+        isConnectable={false}
       />
     </div>
   );

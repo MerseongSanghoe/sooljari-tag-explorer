@@ -1,5 +1,5 @@
 import React from "react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position, useStore } from "reactflow";
 
 export class AlcoholData {
   id;
@@ -24,12 +24,17 @@ export class AlcoholData {
  */
 function AlcoholNode(props) {
   const { alc, onNodeClick } = props.data;
+  const connectionNodeId = useStore((state) => state.connectionNodeId);
+
+  const isConnecting = !!connectionNodeId;
+  //const isTarget = connectionNodeId && connectionNodeId !== alc.key;
 
   return (
     <div className="react-flow__node-default">
       <h2>{alc.title}</h2>
       {alc.image.length > 0 && (
         <img
+          className="non-draggable"
           src={alc.image}
           alt={alc.title}
           style={{
@@ -40,11 +45,18 @@ function AlcoholNode(props) {
         />
       )}
       <button onClick={() => onNodeClick(alc)}>get</button>
-      <Handle className="customHandle" position={Position.Left} type="target" />
+      {!isConnecting && (
+        <Handle
+          className="customHandle"
+          position={Position.Right}
+          type="source"
+        />
+      )}
       <Handle
         className="customHandle"
-        position={Position.Right}
-        type="source"
+        position={Position.Left}
+        type="target"
+        isConnectableStart={false}
       />
     </div>
   );

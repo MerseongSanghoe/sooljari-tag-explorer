@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -7,6 +7,7 @@ import ReactFlow, {
   useEdgesState,
   useReactFlow,
   BackgroundVariant,
+  addEdge,
 } from "reactflow";
 import AlcoholNode, { AlcoholData } from "./customs/alcoholNode";
 import TagNode from "./customs/tagNode";
@@ -113,6 +114,25 @@ function App() {
   ]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
+  const onConnect = useCallback(
+    (params) =>
+      setEdges((eds) =>
+        addEdge(
+          {
+            ...params,
+            style: {
+              stroke: "purple",
+              strokeWidth: "8px",
+            },
+            type: "straight",
+            removable: true,
+          },
+          eds
+        )
+      ),
+    [setEdges]
+  );
+
   /**
    * @type {Set<string>} idSet
    */
@@ -128,8 +148,7 @@ function App() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
-        nodesConnectable={false}
-        elementsSelectable={false}
+        onConnect={onConnect}
       >
         <Controls showInteractive={false} />
         <MiniMap />
