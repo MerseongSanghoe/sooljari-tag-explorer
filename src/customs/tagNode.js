@@ -1,14 +1,36 @@
 import React from "react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position, useReactFlow } from "reactflow";
+
+/**
+ * @typedef {{
+ *  id: string
+ *  key: string
+ * }} TagData
+ */
+export class TagData {
+  id;
+  key;
+  /**
+   * @param {TagData} param0
+   */
+  constructor({ id = "", key = "" }) {
+    this.id = id;
+    this.key = key;
+  }
+}
 
 /**
  * 태그 노드
- * @param {reactflow.NodeProps<string>} props
+ * @component
+ * @param {{ data: {tag: TagData, onNodeClick: (tag: TagData) => {}}}} props
  */
 function TagNode(props) {
+  const { tag, onNodeClick } = props.data;
+
   return (
     <div className="react-flow__node-default">
-      <h2>{props.data}</h2>
+      <h3>#{tag.id}</h3>
+      <button onClick={() => onNodeClick(tag)}>get</button>
       <Handle className="customHandle" position={Position.Left} type="target" />
       <Handle
         className="customHandle"

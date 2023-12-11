@@ -1,13 +1,22 @@
 import React from "react";
-import { Handle, Position } from "reactflow";
+import { Handle, Position, useReactFlow } from "reactflow";
 
+/**
+ * @typedef {{
+ *  id: string,
+ *  title: string,
+ *  image: string,
+ * }} AlcoholData
+ */
 export class AlcoholData {
+  id;
   title;
   image;
   /**
    * @param {AlcoholData} param0
    */
-  constructor({ title = "", image = "" }) {
+  constructor({ id = "", title = "", image = "" }) {
+    this.id = id;
     this.title = title;
     this.image = image;
   }
@@ -15,19 +24,23 @@ export class AlcoholData {
 
 /**
  * 주류 노드
- * @param {reactflow.NodeProps<AlcoholData>} props
+ * @component
+ * @param {{ data: {alc: AlcoholData, onNodeClick: (alc: AlcoholData) => {}}}} props
  */
 function AlcoholNode(props) {
+  const { alc, onNodeClick } = props.data;
+
   return (
     <div className="react-flow__node-default">
-      <h1>{props.data.title}</h1>
-      {props.data.image.length > 0 && (
+      <h2>{alc.title}</h2>
+      {alc.image.length > 0 && (
         <img
-          src={props.data.image}
-          alt={props.data.title}
-          style={{ height: "100px", objectFit: "cover" }}
+          src={alc.image}
+          alt={alc.title}
+          style={{ height: "120px", objectFit: "cover" }}
         />
       )}
+      <button onClick={() => onNodeClick(alc)}>get</button>
       <Handle className="customHandle" position={Position.Left} type="target" />
       <Handle
         className="customHandle"
