@@ -1,3 +1,6 @@
+import { hashString, trySearchAlcohol } from "./alcoholRepository";
+import { TagData } from "./tagNode";
+
 /**
  *
  * @param {import('./alcoholNode').AlcoholData} alc
@@ -53,4 +56,42 @@ const getNewEdge = (alc, tag) => {
 
 const toEdgeKey = (alc, tag) => `e-${alc.key}-${tag.key}`;
 
-export { alcoholToNode, tagToNode, getNewEdge, toEdgeKey };
+/**
+ *
+ * @param {Object} tagOptional
+ * @param {Object} alcOptional
+ * @returns {Promise<import('reactflow').Node[]>}
+ */
+const paramToNodes = async (tagOptional, alcOptional) => {
+  const params = new URLSearchParams(window.location.search);
+  let nodes = [];
+
+  // add tags
+  let tagPosition = { x: -100, y: -100 };
+  const tags = params.getAll("t").map((e) => {
+    tagPosition = { ...tagPosition, x: tagPosition.x + 100 };
+    return tagToNode(
+      new TagData({ id: e, key: "t" + hashString(e) }),
+      tagPosition,
+      tagOptional
+    );
+  });
+  nodes = nodes.concat(tags);
+
+  // add alcohols
+  let alcoholPosition = { x: -100, y: 0 };
+  const alcoholsPromise = params.getAll("a").map((e) => {
+    return new Promise(async (resolve) => {
+      const alcData = await trySearchAlcohol(e);
+      alcoholPosition = { ...alcoholPosition, x: alcoholPosition.x + 100 };
+      resolve(alcoholToNode(alcData, alcoholPosition, alcOptional));
+    });
+  });
+  const alcohols = await Promise.all(alcoholsPromise);
+  nodes = nodes.concat(alcohols);
+
+  console.log(nodes);
+  return nodes.filter((e) => !!e);
+};
+
+export { alcoholToNode, tagToNode, getNewEdge, toEdgeKey, paramToNodes };

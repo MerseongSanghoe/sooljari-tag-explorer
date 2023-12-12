@@ -16,7 +16,7 @@ import ReactFlow, {
   addEdge,
   updateEdge,
 } from "reactflow";
-import AlcoholNode, { AlcoholData } from "./customs/alcoholNode";
+import AlcoholNode from "./customs/alcoholNode";
 import TagNode from "./customs/tagNode";
 
 import "reactflow/dist/style.css";
@@ -30,6 +30,7 @@ import {
 import {
   alcoholToNode,
   getNewEdge,
+  paramToNodes,
   tagToNode,
   toEdgeKey,
 } from "./customs/nodeGenerator";
@@ -48,6 +49,8 @@ const hideNode =
 
 const checkTagNode = (nodeOrEdge) =>
   nodeOrEdge?.type === "TagNode" || nodeOrEdge?.target?.startsWith("t");
+
+const nodeTypes = { AlcoholNode, TagNode };
 
 function App() {
   const edgeUpdateSuccessful = useRef(true);
@@ -131,22 +134,7 @@ function App() {
   // states
   const [hidden, setHidden] = useState(false);
   const [search, setSearch] = useState("");
-  const [nodes, setNodes, onNodesChange] = useNodesState([
-    {
-      id: "a382",
-      type: "AlcoholNode",
-      position: { x: 0, y: 0 },
-      data: {
-        alc: new AlcoholData({
-          id: "382",
-          key: "a382",
-          title: "느린마을 막걸리",
-          image: "http://211.37.148.214/uploads/_19df0f3c14.false",
-        }),
-        onNodeClick: onClickAlcoholNode,
-      },
-    },
-  ]);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   // callbacks
@@ -196,12 +184,27 @@ function App() {
   /**
    * @type {Set<string>} idSet
    */
-  const idSet = useMemo(() => new Set(["a382"]), []);
-  const nodeTypes = useMemo(() => ({ AlcoholNode, TagNode }), []);
+  const idSet = useMemo(() => new Set([]), []);
+  // hidden toggle
   useEffect(() => {
     setNodes((nds) => nds.map(hideNode(hidden, checkTagNode)));
     setEdges((eds) => eds.map(hideNode(hidden, checkTagNode)));
   }, [hidden, setEdges, setNodes]);
+  // get parameter on first
+  useEffect(() => {
+    (async () => {
+      const nodes = await paramToNodes(
+        {
+          onNodeClick: onClickTagNode,
+        },
+        {
+          onNodeClick: onClickAlcoholNode,
+        }
+      );
+      setNodes((nds) => nds.concat(nodes));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
